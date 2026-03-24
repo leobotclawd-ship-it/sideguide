@@ -9,11 +9,15 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "keywords": ["mtg", "sideboard", "guide"],
+  "keywords": [
+    "mtg",
+    "sideboard",
+    "guide"
+  ],
   "author": "Leo",
   "license": "MIT",
   "dependencies": {
-    "@supabase/supabase-js": "^2.38.4",
+    "@supabase/supabase-js": "^2.100.0",
     "next": "^14.2.35",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

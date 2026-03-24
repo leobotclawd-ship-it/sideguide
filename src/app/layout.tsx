@@ -4,6 +4,7 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'SideGuide - MTG Sideboard Guide Builder',
   description: 'Create and share MTG sideboard guides with visual matchup layouts',
+  viewport: 'width=device-width, initial-scale=1',
 }
 
 export default function RootLayout({
