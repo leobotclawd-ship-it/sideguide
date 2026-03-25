@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { showToast } from '@/lib/toast'
 
 interface ShareModalProps {
   guideId: string
@@ -25,6 +26,7 @@ export default function ShareModal({
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl)
     setCopied(true)
+    showToast('Link copied to clipboard!', 'success')
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -32,6 +34,12 @@ export default function ShareModal({
     setToggling(true)
     try {
       await onTogglePublic(!isPublic)
+      showToast(
+        isPublic ? 'Guide made private' : 'Guide made public',
+        'success'
+      )
+    } catch (err) {
+      showToast('Error updating privacy settings', 'error')
     } finally {
       setToggling(false)
     }
