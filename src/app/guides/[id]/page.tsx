@@ -2,6 +2,7 @@
 
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ShareModal from '@/components/ShareModal'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
@@ -18,10 +19,18 @@ export default function GuidePage({ params }: PageProps) {
   const [matchups, setMatchups] = useState<any[]>([])
   const [activeMatchup, setActiveMatchup] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    fetchGuideData()
+    checkUserAndFetchData()
   }, [params.id])
+
+  const checkUserAndFetchData = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    setUser(session?.user || null)
+    await fetchGuideData()
+  }
 
   const fetchGuideData = async () => {
     try {
@@ -78,6 +87,21 @@ export default function GuidePage({ params }: PageProps) {
 
   const mainDeckCount = decklist.reduce((acc, card) => acc + card.quantity, 0)
   const sideboardCount = sideboard.reduce((acc, card) => acc + card.quantity, 0)
+  const isOwner = user && guide && user.id === guide.user_id
+
+  const handleTogglePublic = async (isPublic: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('decklists')
+        .update({ is_public: isPublic })
+        .eq('id', params.id)
+
+      if (error) throw error
+      setGuide({ ...guide, is_public: isPublic })
+    } catch (err) {
+      console.error('Error toggling public:', err)
+    }
+  }
 
   if (loading) {
     return (
@@ -110,7 +134,35 @@ export default function GuidePage({ params }: PageProps) {
         <div className="max-w-6xl mx-auto px-4 py-12">
           {/* Guide Header */}
           <div className="mb-12">
-            <h1 className="text-5xl font-bold text-white mb-4">{guide.name}</h1>
+            <div className="flex justify-between items-start mb-4">
+              <h1 className="text-5xl font-bold text-white">{guide.name}</h1>
+              <div className="flex gap-2">
+                {isOwner && (
+                  <>
+                    <a
+                      href={`/sideguide/${params.id}`}
+                      className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white font-semibold rounded transition"
+                    >
+                      Edit
+                    </a>
+                    <button
+                      onClick={() => setShowShareModal(true)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition"
+                    >
+                      Share
+                    </button>
+                  </>
+                )}
+                {matchups.length > 0 && (
+                  <button
+                    onClick={() => window.print()}
+                    className="px-4 py-2 bg-gold-600 hover:bg-gold-700 text-white font-semibold rounded transition"
+                  >
+                    Print (A4)
+                  </button>
+                )}
+              </div>
+            </div>
             <p className="text-lg text-neutral-400">
               Format: <span className="text-neutral-300 capitalize font-semibold">{guide.format}</span>
             </p>
@@ -244,19 +296,20 @@ export default function GuidePage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Print Button */}
-          {matchups.length > 0 && (
-            <div className="mt-8 text-center">
-              <button
-                onClick={() => window.print()}
-                className="px-6 py-3 bg-gold-600 hover:bg-gold-700 text-white font-semibold rounded-lg transition"
-              >
-                Print Sideguide (A4)
-              </button>
-            </div>
-          )}
         </div>
       </main>
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <ShareModal
+          guideId={params.id}
+          guideName={guide.name}
+          isPublic={guide.is_public}
+          onTogglePublic={handleTogglePublic}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
+
       <Footer />
     </>
   )
