@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { parseArenaDeck } from '@/lib/scryfall'
 import CardSearcher from '@/components/CardSearcher'
-import DeckBuilder from '@/components/DeckBuilder'
 
 export default function CreatePage() {
   const router = useRouter()
