@@ -5,7 +5,7 @@ import Footer from '@/components/Footer'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { searchCards, parseArenaDeck } from '@/lib/scryfall'
+import { parseArenaDeck } from '@/lib/scryfall'
 import CardSearcher from '@/components/CardSearcher'
 import DeckBuilder from '@/components/DeckBuilder'
 
